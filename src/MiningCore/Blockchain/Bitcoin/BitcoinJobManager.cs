@@ -372,7 +372,25 @@ namespace MiningCore.Blockchain.Bitcoin
 
         protected virtual async Task ShowDaemonSyncProgressLegacyAsync()
         {
-            var infos = await daemon.ExecuteCmdAllAsync<DaemonInfo>(BitcoinCommands.GetInfo);
+            DaemonResponse<DaemonInfo>[] infos;
+
+            if (hasMultipleMiningProcedure)
+            {
+                var inconsistentResponse = await daemon.ExecuteCmdAllAsync<DoubleDifficultyDaemonInfo>(BitcoinCommands.GetInfo);
+                infos = new DaemonResponse<DaemonInfo>[inconsistentResponse.Length];
+                for (int i = 0; i < inconsistentResponse.Length; i++)
+                {
+                    var fixedResponse = new DaemonResponse<DaemonInfo>();
+                    fixedResponse.Error = inconsistentResponse[i].Error;
+                    fixedResponse.Instance = inconsistentResponse[i].Instance;
+                    fixedResponse.Response = inconsistentResponse[i].Response.ToDaemonInfo();
+                    infos[i] = fixedResponse;
+                }
+            }
+            else
+            {
+                infos = await daemon.ExecuteCmdAllAsync<DaemonInfo>(BitcoinCommands.GetInfo);
+            }
 
             if (infos.Length > 0)
             {
