@@ -76,6 +76,7 @@ namespace MiningCore.Blockchain.Bitcoin
         protected readonly IHashAlgorithm sha256dReverse = new DigestReverser(new Sha256D());
         protected int maxActiveJobs = 4;
         protected bool hasLegacyDaemon;
+        protected bool hasMultipleMiningProcedure;
         protected BitcoinPoolConfigExtra extraPoolConfig;
         protected BitcoinPoolPaymentProcessingConfigExtra extraPoolPaymentProcessingConfig;
         protected readonly IHashAlgorithm sha256s = new Sha256S();
@@ -319,7 +320,26 @@ namespace MiningCore.Blockchain.Bitcoin
 
         protected virtual async Task<bool> AreDaemonsHealthyLegacyAsync()
         {
-            var responses = await daemon.ExecuteCmdAllAsync<DaemonInfo>(BitcoinCommands.GetInfo);
+            DaemonResponse<DaemonInfo>[] responses;
+            /// This is for dealing with multiple difficulty returns from getinfo.
+            if (hasMultipleMiningProcedure)
+            {
+                var inconsistentResponse = await daemon.ExecuteCmdAllAsync<DoubleDifficultyDaemonInfo>(BitcoinCommands.GetInfo);
+                responses = new DaemonResponse<DaemonInfo>[inconsistentResponse.Length];
+                for(int i = 0; i < inconsistentResponse.Length;i++)
+                {
+                    var fixedResponse = new DaemonResponse<DaemonInfo>();
+                    fixedResponse.Error = inconsistentResponse[i].Error;
+                    fixedResponse.Instance = inconsistentResponse[i].Instance;
+                    fixedResponse.Response = inconsistentResponse[i].Response.ToDaemonInfo();
+                    responses[i] = fixedResponse;
+                }
+
+            }
+            else
+            {
+                responses = await daemon.ExecuteCmdAllAsync<DaemonInfo>(BitcoinCommands.GetInfo);
+            }
 
             if (responses.Where(x => x.Error?.InnerException?.GetType() == typeof(DaemonClientException))
                 .Select(x => (DaemonClientException)x.Error.InnerException)
@@ -542,6 +562,7 @@ namespace MiningCore.Blockchain.Bitcoin
                 maxActiveJobs = extraPoolConfig.MaxActiveJobs.Value;
 
             hasLegacyDaemon = extraPoolConfig?.HasLegacyDaemon == true;
+            hasMultipleMiningProcedure = extraPoolConfig?.HasMultipleMiningProcedure == true;
 
             base.Configure(poolConfig, clusterConfig);
         }

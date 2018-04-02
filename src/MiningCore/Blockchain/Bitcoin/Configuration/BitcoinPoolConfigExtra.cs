@@ -32,5 +32,10 @@ namespace MiningCore.Blockchain.Bitcoin.Configuration
         /// Set to true to limit RPC commands to old Bitcoin command set
         /// </summary>
         public bool? HasLegacyDaemon { get; set; }
+
+        /// <summary>
+        /// Set to true if wallet info returns more than one difficulty. (eg: Ignition Coin POW and POS)
+        /// </summary>
+        public bool? HasMultipleMiningProcedure { get; set; }
     }
 }

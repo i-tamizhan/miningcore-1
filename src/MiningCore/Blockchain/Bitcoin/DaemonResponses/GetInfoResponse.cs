@@ -18,6 +18,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+using System.Collections.Generic;
+
 namespace MiningCore.Blockchain.Bitcoin.DaemonResponses
 {
     public class DaemonInfo
@@ -30,5 +32,17 @@ namespace MiningCore.Blockchain.Bitcoin.DaemonResponses
         public bool Testnet { get; set; }
         public int Connections { get; set; }
         public double Difficulty { get; set; }
+    }
+
+    public class DoubleDifficultyDaemonInfo
+    {
+        public string Version { get; set; }
+        public int ProtocolVersion { get; set; }
+        public int WalletVersion { get; set; }
+        public decimal Balance { get; set; }
+        public ulong Blocks { get; set; }
+        public bool Testnet { get; set; }
+        public int Connections { get; set; }
+        public Dictionary<string,double> Difficulty { get; set; }
     }
 }

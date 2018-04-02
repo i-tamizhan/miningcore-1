@@ -117,3 +117,8 @@ recovered-shares.json
 
 
 src/MiningCore/config\.json
+/src/MiningCore/Blockchain/Bitcoin/BitcoinPayoutHandler.cs.bak
+/src/MiningCore/Blockchain/Bitcoin/BitcoinPool.cs.bak
+/src/MiningCore/Blockchain/Bitcoin/BitcoinProperties.cs.bak
+/src/MiningCore/Blockchain/CoinMetaData.cs.bak
+/src/MiningCore/Configuration/ClusterConfig.cs.bak
