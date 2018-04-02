@@ -430,7 +430,8 @@ namespace MiningCore.Blockchain.Bitcoin
                     logger.Warn(() => $"[{LogCat}] Error(s) refreshing network stats: {string.Join(", ", errors.Select(y => y.Error.Message))}");
             }
 
-            var miningInfoResponse = results[0].Response.ToObject<MiningInfo>();
+            var miningInfoResponse = hasMultipleMiningProcedure ? 
+                results[0].Response.ToObject<IgnitionCoinMiningInfo>().ToMiningInfo() : results[0].Response.ToObject<MiningInfo>();
             var connectionCountResponse = results[1].Response.ToObject<object>();
 
             BlockchainStats.BlockHeight = miningInfoResponse.Blocks;

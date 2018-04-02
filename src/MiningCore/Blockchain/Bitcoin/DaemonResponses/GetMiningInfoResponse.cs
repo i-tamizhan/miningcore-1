@@ -18,6 +18,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+using Newtonsoft.Json;
+using System.Collections.Generic;
+
 namespace MiningCore.Blockchain.Bitcoin.DaemonResponses
 {
     public class MiningInfo
@@ -28,5 +31,32 @@ namespace MiningCore.Blockchain.Bitcoin.DaemonResponses
         public double Difficulty { get; set; }
         public double NetworkHashps { get; set; }
         public string Chain { get; set; }
+    }
+
+    public class IgnitionCoinMiningInfo
+    {
+        public int Blocks { get; set; }
+        public int CurrentBlockSize { get; set; }
+        public int CurrentBlockWeight { get; set; }
+        public Dictionary<string, double> Difficulty { get; set; }
+        public double NetworkHashps { get; set; }
+        public bool TestNet { get; set; }
+        [JsonExtensionData]
+        public IDictionary<string, object> Extra { get; set; }
+
+        public MiningInfo ToMiningInfo()
+        {
+            var mInfo = new MiningInfo();
+            mInfo.Blocks = Blocks;
+            mInfo.CurrentBlockSize = CurrentBlockSize;
+            mInfo.CurrentBlockWeight = CurrentBlockWeight;
+            mInfo.Difficulty = Difficulty["proof-of-work"];
+            mInfo.NetworkHashps = NetworkHashps;
+            if (!TestNet)
+                mInfo.Chain = "main";
+            else
+                mInfo.Chain = "test";
+            return mInfo;
+        }
     }
 }
