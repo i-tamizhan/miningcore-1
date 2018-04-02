@@ -670,7 +670,8 @@ namespace MiningCore.Blockchain.Bitcoin
             var validateAddressResponse = results[0].Response.ToObject<ValidateAddressResponse>();
             var submitBlockResponse = results[1];
             var blockchainInfoResponse = !hasLegacyDaemon ? results[2].Response.ToObject<BlockchainInfo>() : null;
-            var daemonInfoResponse = hasLegacyDaemon ? results[2].Response.ToObject<DaemonInfo>() : null;
+            var daemonInfoResponse = hasLegacyDaemon && hasMultipleMiningProcedure ? results[2].Response.ToObject<DoubleDifficultyDaemonInfo>().ToDaemonInfo() :
+                hasLegacyDaemon && !hasMultipleMiningProcedure ? results[2].Response.ToObject<DaemonInfo>() : null;
             var difficultyResponse = results[3].Response.ToObject<JToken>();
 
             // ensure pool owns wallet
