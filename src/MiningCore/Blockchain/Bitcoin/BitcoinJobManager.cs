@@ -351,7 +351,21 @@ namespace MiningCore.Blockchain.Bitcoin
 
         protected virtual async Task<bool> AreDaemonsConnectedLegacyAsync()
         {
-            var response = await daemon.ExecuteCmdAnyAsync<DaemonInfo>(BitcoinCommands.GetInfo);
+            DaemonResponse<DaemonInfo> response;
+            if (hasMultipleMiningProcedure)
+            {
+                var inconsistentResponse = await daemon.ExecuteCmdAnyAsync<DoubleDifficultyDaemonInfo>(BitcoinCommands.GetInfo);
+                response = new DaemonResponse<DaemonInfo>
+                {
+                    Error = inconsistentResponse.Error,
+                    Instance = inconsistentResponse.Instance,
+                    Response = inconsistentResponse.Response.ToDaemonInfo()
+                };
+            }
+            else
+            { 
+                response = await daemon.ExecuteCmdAnyAsync<DaemonInfo>(BitcoinCommands.GetInfo);
+            }
 
             return response.Error == null && response.Response.Connections > 0;
         }
